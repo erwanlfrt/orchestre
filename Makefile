@@ -12,9 +12,8 @@ output: $(SRC)
 	@gcc $< $(CFLAGS) -o $(BIN)  -pthread -lopenal -lalut
 	@./bin/musician
 
-musician: src/musician.c
+musician: src/musician.c src/tools/colors.c
 	@gcc $< $(CFLAGS) -o $(BIN)  -pthread -lopenal -lalut
-	@./bin/musician
 
 orchestra: src/orchestra.c
 	@gcc $< $(CFLAGS) -o $(BIN)  -pthread -lopenal -lalut
