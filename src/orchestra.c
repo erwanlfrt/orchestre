@@ -1,61 +1,41 @@
-#include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <assert.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
 #include <stdbool.h>
 #include <string.h>
+#include <assert.h>
 #include <AL/al.h>
 #include <AL/alc.h>
-#include "../freealut/alut.h"
-
-#include "semaphore.h"
+#include <AL/alut.h>
 
 #define N_INSTRU 10
 #define MAX_LEN 50
 
+#define SOUND_PATH "./sounds/"
+
 ALuint sources[N_INSTRU];
+char path[300];
 
-int main()
-{
-    int nthr = 0;
+int main (int argc, char **argv) {
+  alutInit (&argc, argv);
+  alListener3f(AL_POSITION, 0, 0, 0);
+  alListener3f(AL_VELOCITY, 0, 0, 0);
+  strcpy(path, SOUND_PATH);
+  strcat(path, "tribal-flute.wav");
+  ALuint b = alutCreateBufferFromFile(path);
+  ALuint s = sources[0];
 
-    char name[MAX_LEN];
-    switch(nthr)
-    {
-        case 0:
-            strncpy(name, "soundLiquid.wav", MAX_LEN);
-            break;
-        case 1:
-            strncpy(name, "soundLiquid.wav", MAX_LEN);
-            break;
-        case 2:
-            strncpy(name, "soundLiquid.wav", MAX_LEN);
-            break;
-        default:
-            strncpy(name, "soundLiquid.wav", MAX_LEN);
-            break;
-    }
+  // lien buffer -> source
+  alGenSources(1, &s);
+  alSourcei(s, AL_BUFFER, (ALint)b);
+  assert(alGetError()==AL_NO_ERROR && "Failed to setup sound source");
 
-    printf("%s \n", name);
+  alSourcePlay(s);
 
-    ALuint b = alutCreateBufferFromFile("soundLiquid.wav");
-    ALuint s = sources[nthr];
+  alutSleep (5);
 
-    // lien buffer -> source
-    alGenSources(1, &s);
-    alSourcei(s, AL_BUFFER, (ALint)b);
+  alDeleteSources(1, &s);
+  alDeleteBuffers(1, &b);
+  alutExit ();
 
-    alSourcePlay(s);
-
-    //alSourcePause(s);
-
-    //alSourceStop(s);
-
-    alDeleteSources(1, &s);
-    alDeleteBuffers(1, &b);
-
-    return 0;
+  return EXIT_SUCCESS;
 }
