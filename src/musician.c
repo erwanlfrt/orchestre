@@ -3,6 +3,7 @@
 #include <string.h>
 #include "./tools/colors.h"
 #define NUMBER_OF_INSTRUMENTS 18
+#define NUMBER_OF_CMD 2
 
 char * music_instruments[NUMBER_OF_INSTRUMENTS] = { 
   "violin", 
@@ -25,6 +26,11 @@ char * music_instruments[NUMBER_OF_INSTRUMENTS] = {
   "tambourine"
 };
 
+char * available_cmd[2] = {
+  "play",
+  "pause"
+};
+
 void display_help () {
   int i;
   printf("available instruments : \n");
@@ -45,8 +51,22 @@ bool is_valid_instrument (char * instrument) {
     printf("%s is not a valid instrument.\n", instrument);
     white();
   }
-  
   return false;
+}
+
+void is_valid_cmd (char* cmd) {
+  int i;
+  if (strcmp("", cmd)) {
+    for (i = 0; i < NUMBER_OF_CMD; i++) {
+      if (strcmp(available_cmd[i], cmd) == 0) {
+        return;
+      }
+    }
+    red();
+    printf("\n%s is not a valid command.\n", cmd);
+    white();
+  }
+  return;
 }
 
 void get_instrument () {
@@ -72,11 +92,21 @@ void display_welcome_screen () {
   white();
 }
 
+void listen_for_key_events() {
+  char cmd[40];
+  printf("Type \"play\" or \"pause\"\n");
+  while(true) {
+    scanf(" %s", cmd);
+    is_valid_cmd(cmd);
+  }
+}
+
 
 
 
 int main(int argc, char* argv[]) {
   display_welcome_screen();
   get_instrument();
+  listen_for_key_events();
   return 0;
 }
