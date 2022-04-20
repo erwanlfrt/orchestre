@@ -25,9 +25,17 @@ char * music_instruments[NUMBER_OF_INSTRUMENTS] = {
   "tambourine"
 };
 
+void display_help () {
+  int i;
+  printf("available instruments : \n");
+  for (i = 0; i < NUMBER_OF_INSTRUMENTS; i++) {
+    printf("%s\n", music_instruments[i]);
+  }
+}
+
 bool is_valid_instrument (char * instrument) {
   int i;
-  if (strcmp("", instrument) != 0) {
+  if (strcmp("", instrument) && strcmp("help", instrument) && strcmp("h", instrument) ) {
     for (i = 0; i < NUMBER_OF_INSTRUMENTS; i++) {
       if (strcmp(music_instruments[i], instrument) == 0) {
         return true;
@@ -47,6 +55,9 @@ void get_instrument () {
   while (!is_valid_instrument(instrument)) {
     printf("\nWhat is your instrument ? ");
     scanf("%s", instrument);
+    if(!strcmp("help", instrument) || !strcmp("h", instrument)) {
+      display_help();
+    }
   }
 }
 
@@ -60,6 +71,8 @@ void display_welcome_screen () {
   printf("To see the available instrument, type \"help\" or \"h\"\n");
   white();
 }
+
+
 
 
 int main(int argc, char* argv[]) {
