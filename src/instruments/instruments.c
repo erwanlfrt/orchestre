@@ -19,18 +19,27 @@ char * music_instruments[NUMBER_OF_INSTRUMENTS] = {
   "bass drum",
   "cymbals",
   "triangle",
-  "tambourine"
+  "tambourine",
+  "piano"
 };
 
-char * violins[2] = {
+char * violins[3] = {
   "violins/violin_1.wav",
-  "violins/violin_2.wav"
+  "violins/violin_2.wav",
+  "violins/violin_3.wav"
+};
+
+char * pianos[1] = {
+  "piano/piano_1.wav"
 };
 
 
 char * assign_partition (char * type) {
   if (!strcmp(type, music_instruments[0])) {
-    return violins[1];
+    return violins[2];
+  }
+  if (!strcmp(type, music_instruments[18])) {
+    return pianos[0];
   }
   return "";
 }

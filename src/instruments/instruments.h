@@ -1,4 +1,4 @@
-#define NUMBER_OF_INSTRUMENTS 18
+#define NUMBER_OF_INSTRUMENTS 19
 
 
 char * music_instruments[NUMBER_OF_INSTRUMENTS];
