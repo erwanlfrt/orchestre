@@ -9,7 +9,8 @@
 #include <pthread.h>
 #include <arpa/inet.h>
 #include <assert.h>
-
+#include "./musician/musician.h"
+#include "./instruments/instruments.h"
 #define N_INSTRU 10
 #define MAX_LEN 50
 #define SOUND_PATH "./sounds/"
@@ -17,42 +18,100 @@
 
 ALuint sources[N_INSTRU];
 char path[300];
+Musician musicians[N_INSTRU];
+int current_nb_instru = 0;
 
+ALuint buffer;
+ALCdevice *device;
+ALCcontext *context;
+ALuint source;
 
+char * get_partition (int sockfd) {
+  int i;
+  for (i = 0; i < current_nb_instru ; i++) {
+    if (musicians[i].sockfd == sockfd) {
+      return musicians[i].partition;
+    } 
+  }
+  return "";
+}
 
-void init_openAL () {
-  ALCdevice *device;
-  ALCcontext *context;
-  ALuint buffer;
+void load (int sockfd) {
   ALsizei size, freq;
   ALenum format;
   ALvoid *data;
   ALboolean loop = AL_FALSE;
-  ALuint source;
+  strcpy(path, SOUND_PATH);
+  strcat(path, get_partition(sockfd));
+  alutLoadWAVFile(path, &format, &data, &size, &freq, &loop);
+  alBufferData(buffer, format, data, size, freq);
+  alGenSources(1, &source);
+  alSourcei(source, AL_BUFFER, buffer);
+  // alSourcePlay(source);
+}
+
+void play (int sockfd) {
+  alSourcePlay(source);
+}
+
+void pause (int sockfd) {
+  alSourcePause(source);
+}
+
+void stop (int sockfd) {
+  alSourceStop(source);
+}
+
+void init_openAL () {
   device = alcOpenDevice (NULL);
   context = alcCreateContext (device, NULL);
   alcMakeContextCurrent (context);
   alutInitWithoutContext(0, NULL);
   alListener3f(AL_POSITION, 0, 0, 0);
   alListener3f(AL_VELOCITY, 0, 0, 0);
-  strcpy(path, SOUND_PATH);
-  strcat(path, "tribal-flute.wav");
   alGenBuffers((ALuint)1, &buffer);
-  alutLoadWAVFile(path, &format, &data, &size, &freq, &loop);
-  alBufferData(buffer, format, data, size, freq);
-  alGenSources(1, &source);
-  alSourcei(source, AL_BUFFER, buffer);
-  alSourcePlay(source);
   alutSleep (5);
+  
+}
+
+void close_openAL () {
   alDeleteSources(1, &source);
   alDeleteBuffers(1, &buffer);
   alcDestroyContext (context);
   alcCloseDevice (device);
 }
 
+
+
+void create_musician (char * type, int sockfd) {
+  if (current_nb_instru < N_INSTRU) {
+    musicians[current_nb_instru].type = type;
+    musicians[current_nb_instru].sockfd = sockfd;
+    musicians[current_nb_instru].partition = assign_partition(type);
+    current_nb_instru++;
+  }
+}
+
 void * thread_musician (void * args) {
   int sock = ((int*)args)[0];
   printf("New connection !!! sockfd = %i\n",sock);
+
+  char buffer[8192];
+  assert(recv (sock, buffer, sizeof buffer, 0) != -1);
+  create_musician(buffer, sock);
+  load(sock);
+
+  int count = 0;
+  int total = 0;
+  while ((count = recv(sock, &buffer[total], sizeof buffer - total, 0)) > 0) {
+    if (!strcmp(buffer, "play")) {
+      play(sock);
+    } else if (!strcmp(buffer, "pause")) {
+      pause(sock);
+    } else if (!strcmp(buffer, "pause")) {
+      stop(sock);
+    }
+  }
 }
 
 
@@ -83,12 +142,12 @@ void thread_orchestra () {
     pthread_create(&thr[nthr], NULL, &thread_musician, args);
     nthr++;
   }
-  printf("thread_orchestra done");
 }
 
 int main (int argc, char **argv) {
-  // init_openAL();
+  init_openAL();
   thread_orchestra();
   while(1);
+  close_openAL();
   return EXIT_SUCCESS;
 }
