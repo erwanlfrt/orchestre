@@ -21,10 +21,11 @@ char path[300];
 Musician musicians[N_INSTRU];
 int current_nb_instru = 0;
 
+ALuint source;
 ALuint buffer;
 ALCdevice *device;
 ALCcontext *context;
-ALuint source;
+ALuint tableauSources [N_INSTRU];
 
 char * get_partition (int sockfd) {
   int i;
@@ -37,21 +38,28 @@ char * get_partition (int sockfd) {
 }
 
 void load (int sockfd) {
+  /*ALuint source;
+  ALuint buffer;*/
   ALsizei size, freq;
   ALenum format;
   ALvoid *data;
   ALboolean loop = AL_FALSE;
+
   strcpy(path, SOUND_PATH);
   strcat(path, get_partition(sockfd));
+
   alutLoadWAVFile(path, &format, &data, &size, &freq, &loop);
   alBufferData(buffer, format, data, size, freq);
+
   alGenSources(1, &source);
   alSourcei(source, AL_BUFFER, buffer);
-  // alSourcePlay(source);
+
+  tableauSources [1] = source;
 }
 
 void play (int sockfd) {
   alSourcePlay(source);
+  alSourcePlayv(2, tableauSources);
 }
 
 void pause (int sockfd) {
@@ -71,12 +79,14 @@ void init_openAL () {
   alListener3f(AL_VELOCITY, 0, 0, 0);
   alGenBuffers((ALuint)1, &buffer);
   alutSleep (5);
-  
+}
+
+void deleteSourceBuffer (ALuint *source, ALuint *buffer) {
+    alDeleteSources(1, &source);
+    alDeleteBuffers(1, &buffer);
 }
 
 void close_openAL () {
-  alDeleteSources(1, &source);
-  alDeleteBuffers(1, &buffer);
   alcDestroyContext (context);
   alcCloseDevice (device);
 }
