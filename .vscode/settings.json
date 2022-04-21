@@ -3,6 +3,7 @@
     "stdio.h": "c",
     "pthread.h": "c",
     "socket.h": "c",
-    "inet.h": "c"
+    "inet.h": "c",
+    "alut.h": "c"
   }
 }
