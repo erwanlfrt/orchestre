@@ -25,7 +25,19 @@ ALuint source;
 ALuint buffer;
 ALCdevice *device;
 ALCcontext *context;
-ALuint tableauSources [N_INSTRU];
+
+Musician * get_musician(int sockfd) {
+  for (int i = 0; i < current_nb_instru; i++) {
+    if (sockfd == musicians[i].sockfd) {
+      return &(musicians[i]);
+    }
+  }
+  Musician null;
+  null.partition = "";
+  null.sockfd = -1;
+  null.type = "";
+  return &(null);
+}
 
 char * get_partition (int sockfd) {
   int i;
@@ -38,36 +50,45 @@ char * get_partition (int sockfd) {
 }
 
 void load (int sockfd) {
-  /*ALuint source;
-  ALuint buffer;*/
+
   ALsizei size, freq;
   ALenum format;
   ALvoid *data;
   ALboolean loop = AL_FALSE;
 
+  Musician * musician = get_musician(sockfd);
+
   strcpy(path, SOUND_PATH);
   strcat(path, get_partition(sockfd));
-
+  
+  alGenBuffers((ALuint)1, &(buffer));
   alutLoadWAVFile(path, &format, &data, &size, &freq, &loop);
   alBufferData(buffer, format, data, size, freq);
 
-  alGenSources(1, &source);
+  alGenSources(1, &(source));
   alSourcei(source, AL_BUFFER, buffer);
 
-  tableauSources [1] = source;
+  musician->source = source;
+  musician->buffer = buffer;
+
 }
 
 void play (int sockfd) {
-  alSourcePlay(source);
-  alSourcePlayv(2, tableauSources);
+  Musician * musician = get_musician(sockfd);
+  printf("play partition : %s\n", musician->partition);
+  printf("play source : %i\n", musician->source);
+  printf("source = %i\n", source);
+  alSourcePlay(musician->source);
 }
 
 void pause (int sockfd) {
-  alSourcePause(source);
+  Musician * musician = get_musician(sockfd);
+  alSourcePause(musician->source);
 }
 
 void stop (int sockfd) {
-  alSourceStop(source);
+  Musician * musician = get_musician(sockfd);
+  alSourceStop(musician->source);
 }
 
 void init_openAL () {
@@ -77,13 +98,12 @@ void init_openAL () {
   alutInitWithoutContext(0, NULL);
   alListener3f(AL_POSITION, 0, 0, 0);
   alListener3f(AL_VELOCITY, 0, 0, 0);
-  alGenBuffers((ALuint)1, &buffer);
   alutSleep (5);
 }
 
 void deleteSourceBuffer (ALuint *source, ALuint *buffer) {
-    alDeleteSources(1, &source);
-    alDeleteBuffers(1, &buffer);
+    alDeleteSources(1, source);
+    alDeleteBuffers(1, buffer);
 }
 
 void close_openAL () {
