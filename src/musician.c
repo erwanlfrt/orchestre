@@ -1,9 +1,17 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <arpa/inet.h>
+#include <string.h>
+#include <assert.h>
 #include "./tools/colors.h"
 #define NUMBER_OF_INSTRUMENTS 18
 #define NUMBER_OF_CMD 2
+#define port 1234
+
 
 char * music_instruments[NUMBER_OF_INSTRUMENTS] = { 
   "violin", 
@@ -101,12 +109,36 @@ void listen_for_key_events() {
   }
 }
 
+void get_connection () {
+  int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  struct sockaddr_in addr;
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(port);
+  assert(inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr)>=0);
+
+  // la connexion déclenche la création du thread distant
+  assert(connect(sockfd, (struct sockaddr *)&addr, sizeof(addr))>=0);
+
+	#define BUFF_SIZE 10
+	char buffer[BUFF_SIZE];
+	strncpy(buffer, "test", BUFF_SIZE);
+
+	assert(send(sockfd, buffer, sizeof(buffer), 0)!=-1);
+
+	// la fermeture de la socket délenche la fin du thread distant
+	// on reste donc "ouvert" 5 secondes pour entendre qq chose
+
+	printf("done!\n");
+	close(sockfd);
+}
+
 
 
 
 int main(int argc, char* argv[]) {
   display_welcome_screen();
   get_instrument();
+  get_connection();
   listen_for_key_events();
   return 0;
 }
