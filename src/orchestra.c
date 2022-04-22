@@ -91,6 +91,40 @@ void stop (int sockfd) {
   alSourceStop(musician->source);
 }
 
+void setPosition(int sockfd, char position) {
+    Musician * musician = get_musician(sockfd);
+    switch (position) {
+        case 'N':
+            alSource3f(musician->source, AL_POSITION, 0.0, 2.0, 0.0);
+            break;
+        case 'S':
+            alSource3f(musician->source, AL_POSITION, 0.0, -2.0, 0.0);
+            break;
+        case 'E':
+            alSource3f(musician->source, AL_POSITION, 2.0, 0.0, 0.0);
+            break;
+        case 'W':
+            alSource3f(musician->source, AL_POSITION, -2.0, 0.0, 0.0);
+            break;
+        case 'NE':
+            alSource3f(musician->source, AL_POSITION, 2.0, 2.0, 0.0);
+            break;
+        case 'NW':
+            alSource3f(musician->source, AL_POSITION, -2.0, 2.0, 0.0);
+            break;
+        case 'SE':
+            alSource3f(musician->source, AL_POSITION, 2.0, -2.0, 0.0);
+            break;
+        case 'SW':
+            alSource3f(musician->source, AL_POSITION, -2.0, -2.0, 0.0);
+            break;
+        default:
+            // front of the scene
+            alSource3f(source, AL_POSITION, 0.0, 0.0, 0.0);
+            break;
+    }
+}
+
 void init_openAL () {
   device = alcOpenDevice (NULL);
   context = alcCreateContext (device, NULL);
@@ -110,8 +144,6 @@ void close_openAL () {
   alcDestroyContext (context);
   alcCloseDevice (device);
 }
-
-
 
 void create_musician (char * type, int sockfd) {
   if (current_nb_instru < N_INSTRU) {
