@@ -172,10 +172,25 @@ void * thread_musician (void * args) {
       pause(sock);
     } else if (!strcmp(buffer, "pause")) {
       stop(sock);
+    } else if (!strcmp(buffer, "position North")) {
+      setPosition(sock, 'N');
+    } else if (!strcmp(buffer, "position South")) {
+        setPosition(sock, 'S');
+    } else if (!strcmp(buffer, "position East")) {
+        setPosition(sock, 'E');
+    } else if (!strcmp(buffer, "position West")) {
+        setPosition(sock, 'W');
+    } else if (!strcmp(buffer, "position North East")) {
+        setPosition(sock, 'NE');
+    } else if (!strcmp(buffer, "position North West")) {
+        setPosition(sock, 'NW');
+    } else if (!strcmp(buffer, "position South East")) {
+        setPosition(sock, 'SE');
+    } else if (!strcmp(buffer, "position South West")) {
+        setPosition(sock, 'SW');
     }
   }
 }
-
 
 void thread_orchestra () {
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
