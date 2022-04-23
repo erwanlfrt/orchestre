@@ -4,6 +4,7 @@
     "pthread.h": "c",
     "socket.h": "c",
     "inet.h": "c",
-    "alut.h": "c"
+    "alut.h": "c",
+    "instruments.h": "c"
   }
 }
