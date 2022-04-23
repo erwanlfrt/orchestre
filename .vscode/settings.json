@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "files.associations": {
     "stdio.h": "c",
@@ -7,4 +8,15 @@
     "alut.h": "c",
     "instruments.h": "c"
   }
+=======
+{
+  "files.associations": {
+    "stdio.h": "c",
+    "pthread.h": "c",
+    "socket.h": "c",
+    "inet.h": "c",
+    "alut.h": "c",
+    "string.h": "c"
+  }
+>>>>>>> 728090b... UPDATE user interface
 }
