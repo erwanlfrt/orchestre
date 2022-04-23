@@ -1,38 +1,60 @@
 #include "colors.h"
 #include <stdio.h>
+#include <ncurses.h>
+
+#define BLACK_PAIR 1
+#define RED_PAIR 2
+#define GREEN_PAIR 3 
+#define YELLOW_PAIR 4
+#define BLUE_PAIR 5
+#define CYAN_PAIR 6
+#define WHITE_PAIR 7
+
+// const char * BLACK = "\033[0;30m";
+// const char * RED = "\033[0;31m";
+// const char * GREEN = "\033[0;32m";
+// const char * YELLOW = "\033[0;33m";
+// const char * BLUE = "\033[0;34m";
+// const char * PURPLE = "\033[0;35m";
+// const char * CYAN = "\033[0;36m";
+// const char * WHITE = "\033[0;37m";
 
 
-const char * BLACK = "\033[0;30m";
-const char * RED = "\033[0;31m";
-const char * GREEN = "\033[0;32m";
-const char * YELLOW = "\033[0;33m";
-const char * BLUE = "\033[0;34m";
-const char * PURPLE = "\033[0;35m";
-const char * CYAN = "\033[0;36m";
-const char * WHITE = "\033[0;37m";
-
+void init() {
+  start_color();
+  init_pair(YELLOW_PAIR, COLOR_YELLOW, COLOR_BLACK);
+  init_pair(GREEN_PAIR, COLOR_GREEN, COLOR_BLACK);
+  init_pair(BLACK_PAIR, COLOR_BLACK, COLOR_BLACK);
+  init_pair(RED_PAIR, COLOR_RED, COLOR_BLACK);
+  init_pair(BLUE_PAIR, COLOR_BLUE, COLOR_BLACK);
+  init_pair(CYAN_PAIR, COLOR_CYAN, COLOR_BLACK);
+  init_pair(WHITE_PAIR, COLOR_WHITE, COLOR_BLACK);
+}
 
 void black() {
-  printf("%s", BLACK);
+  attron(COLOR_PAIR(BLACK_PAIR));
 }
+
 void red(){
-  printf("%s", RED);
+  attron(COLOR_PAIR(RED_PAIR));
 }
+
 void green(){
-  printf("%s", GREEN);
+  attron(COLOR_PAIR(GREEN_PAIR));
 }
+
 void yellow(){
-  printf("%s", YELLOW);
+  attron(COLOR_PAIR(YELLOW_PAIR));
 }
+
 void blue(){
-  printf("%s", BLUE);
+  attron(COLOR_PAIR(BLUE_PAIR));
 }
-void purple(){
-  printf("%s", PURPLE);
-}
+
 void cyan(){
-  printf("%s", CYAN);
+  attron(COLOR_PAIR(CYAN_PAIR));
 }
+
 void white(){
-  printf("%s", WHITE);
+  attron(COLOR_PAIR(WHITE_PAIR));
 }

@@ -32,11 +32,7 @@ Musician * get_musician(int sockfd) {
       return &(musicians[i]);
     }
   }
-  Musician null;
-  null.partition = "";
-  null.sockfd = -1;
-  null.type = "";
-  return &(null);
+  return NULL;
 }
 
 char * get_partition (int sockfd) {
@@ -50,7 +46,6 @@ char * get_partition (int sockfd) {
 }
 
 void load (int sockfd) {
-
   ALsizei size, freq;
   ALenum format;
   ALvoid *data;
@@ -130,7 +125,7 @@ void init_openAL () {
   context = alcCreateContext (device, NULL);
   alcMakeContextCurrent (context);
   alutInitWithoutContext(0, NULL);
-  alListener3f(AL_POSITION, 0, 0, 0);
+  alListener3f(AL_POSITION, 45, 0, 0);
   alListener3f(AL_VELOCITY, 0, 0, 0);
   alutSleep (5);
 }
@@ -170,7 +165,7 @@ void * thread_musician (void * args) {
       play(sock);
     } else if (!strcmp(buffer, "pause")) {
       pause(sock);
-    } else if (!strcmp(buffer, "pause")) {
+    } else if (!strcmp(buffer, "stop")) {
       stop(sock);
     } else if (!strcmp(buffer, "position North")) {
       setPosition(sock, 'N');
