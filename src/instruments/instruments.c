@@ -23,10 +23,11 @@ char * music_instruments[NUMBER_OF_INSTRUMENTS] = {
   "piano"
 };
 
-char * violins[3] = {
+char * violins[4] = {
   "violins/violin_1.wav",
   "violins/violin_2.wav",
-  "violins/violin_3.wav"
+  "violins/violin_3.wav",
+  "violins/violin_4.wav"
 };
 
 char * pianos[1] = {
@@ -36,7 +37,7 @@ char * pianos[1] = {
 
 char * assign_partition (char * type) {
   if (!strcmp(type, music_instruments[0])) {
-    return violins[2];
+    return violins[3];
   }
   if (!strcmp(type, music_instruments[18])) {
     return pianos[0];

@@ -234,6 +234,10 @@ void draw_compass () {
   white();
   printw("                          \n");
   refresh();
+  char buf = current_direction + '0';
+  char * buffer[1];
+  buffer[0] = buf;
+  assert(send(sockfd, &buffer, sizeof(buffer), 0)!=-1);
 }
 
 void display_position_menu () {

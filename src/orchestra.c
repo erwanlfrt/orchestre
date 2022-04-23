@@ -11,6 +11,7 @@
 #include <assert.h>
 #include "./musician/musician.h"
 #include "./instruments/instruments.h"
+#include "./direction/direction.h"
 #define N_INSTRU 10
 #define MAX_LEN 50
 #define SOUND_PATH "./sounds/"
@@ -86,32 +87,35 @@ void stop (int sockfd) {
   alSourceStop(musician->source);
 }
 
-void setPosition(int sockfd, char position) {
+void setPosition(int sockfd, int position) {
     Musician * musician = get_musician(sockfd);
     switch (position) {
-        case 'N':
+        case N:
             alSource3f(musician->source, AL_POSITION, 0.0, 2.0, 0.0);
             break;
-        case 'S':
+        case S:
             alSource3f(musician->source, AL_POSITION, 0.0, -2.0, 0.0);
             break;
-        case 'E':
+        case E:
             alSource3f(musician->source, AL_POSITION, 2.0, 0.0, 0.0);
             break;
-        case 'W':
+        case W:
             alSource3f(musician->source, AL_POSITION, -2.0, 0.0, 0.0);
             break;
-        case 'NE':
+        case NE:
             alSource3f(musician->source, AL_POSITION, 2.0, 2.0, 0.0);
             break;
-        case 'NW':
+        case NW:
             alSource3f(musician->source, AL_POSITION, -2.0, 2.0, 0.0);
             break;
-        case 'SE':
+        case SE:
             alSource3f(musician->source, AL_POSITION, 2.0, -2.0, 0.0);
             break;
-        case 'SW':
+        case SW:
             alSource3f(musician->source, AL_POSITION, -2.0, -2.0, 0.0);
+            break;
+        case CENTER:
+            alSource3f(source, AL_POSITION, 0.0, 0.0, 0.0);
             break;
         default:
             // front of the scene
@@ -125,7 +129,7 @@ void init_openAL () {
   context = alcCreateContext (device, NULL);
   alcMakeContextCurrent (context);
   alutInitWithoutContext(0, NULL);
-  alListener3f(AL_POSITION, 45, 0, 0);
+  alListener3f(AL_POSITION, 0, 0, 0);
   alListener3f(AL_VELOCITY, 0, 0, 0);
   alutSleep (5);
 }
@@ -167,22 +171,10 @@ void * thread_musician (void * args) {
       pause(sock);
     } else if (!strcmp(buffer, "stop")) {
       stop(sock);
-    } else if (!strcmp(buffer, "position North")) {
-      setPosition(sock, 'N');
-    } else if (!strcmp(buffer, "position South")) {
-        setPosition(sock, 'S');
-    } else if (!strcmp(buffer, "position East")) {
-        setPosition(sock, 'E');
-    } else if (!strcmp(buffer, "position West")) {
-        setPosition(sock, 'W');
-    } else if (!strcmp(buffer, "position North East")) {
-        setPosition(sock, 'NE');
-    } else if (!strcmp(buffer, "position North West")) {
-        setPosition(sock, 'NW');
-    } else if (!strcmp(buffer, "position South East")) {
-        setPosition(sock, 'SE');
-    } else if (!strcmp(buffer, "position South West")) {
-        setPosition(sock, 'SW');
+    } else {
+      int position = buffer[0] - '0';
+      printf("Data received: %i\n",position);
+      setPosition(sock, position);
     }
   }
 }
