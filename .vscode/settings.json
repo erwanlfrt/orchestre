@@ -5,6 +5,7 @@
     "socket.h": "c",
     "inet.h": "c",
     "alut.h": "c",
-    "string.h": "c"
+    "string.h": "c",
+    "cstdlib": "c"
   }
 }
