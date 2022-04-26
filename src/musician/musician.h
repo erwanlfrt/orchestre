@@ -6,6 +6,7 @@ typedef struct musician {
   char * partition;
   ALuint source;
   ALuint buffer;
+  long int nthr;
 } Musician;
 
 char * assign_partition (char * type);

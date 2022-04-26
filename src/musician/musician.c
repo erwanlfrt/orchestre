@@ -116,6 +116,7 @@ void get_instrument () {
       display_help();
     }
   }
+  display_position_menu(true);
 }
 
 
@@ -129,7 +130,7 @@ void display_welcome_screen () {
   refresh();
 }
 
-void draw_compass () {
+void draw_compass (bool is_init) {
   move(6,0);
   if (current_direction == N) {
     green();
@@ -237,38 +238,70 @@ void draw_compass () {
   char buf = current_direction + '0';
   char * buffer[1];
   buffer[0] = buf;
-  assert(send(sockfd, &buffer, sizeof(buffer), 0)!=-1);
+  if (!is_init) {
+    assert(send(sockfd, &buffer, sizeof(buffer), 0)!=-1);
+  }
 }
 
-void display_position_menu () {
+void display_position_menu (bool is_init) {
   display_header();
   move(5, 0);
   printw("========= POSITION =========\n");
-  draw_compass();
+  draw_compass(is_init);
   char input;
   while (true) {
     input = getch();
-    if ((int)input == 27) {
+    if ((int)input == 27 && !is_init) {
       listen_for_key_events();
       break;
-    } 
+    } else if ((int)input == 10 && is_init) {
+      break;
+    }
     else if (input == 'd') {
       current_direction++;
       if (current_direction > 7) {
         current_direction = 0;
       }
-      draw_compass();
+      draw_compass(is_init);
     } else if (input == 'q') {
       current_direction--;
       if (current_direction < 0) {
         current_direction = 7;
       }
-      draw_compass();
+      draw_compass(is_init);
     } else if (input == 'o') {
       current_direction = -1;
-      draw_compass();
+      draw_compass(is_init);
     }
   }
+}
+bool test_connection () {
+  // sleep(5);
+  // int check = send(sockfd, instrument, sizeof(instrument), 0);
+  // printw("check = %i\n", check);
+  // if (!check) {
+  //   printw("problem pas de connexion");
+  // } else {
+  //   printw("tout est ok");
+  // }
+  // refresh();
+  int error = 0;
+  socklen_t len = sizeof (error);
+  int retval = getsockopt (sockfd, SOL_SOCKET, SO_ERROR, &error, &len);
+  printw("retval = %i", retval);
+  if (retval != 0) {
+    /* there was a problem getting the error code */
+    printw("error getting socket error code: %s\n", strerror(retval));
+    return false;
+  }
+
+  if (error != 0) {
+      /* socket has a non zero error status */
+      printw("socket error: %s\n", strerror(error));
+      return false;
+  }
+  refresh();
+  return true;
 }
 
 void listen_for_key_events() {
@@ -276,7 +309,6 @@ void listen_for_key_events() {
   display_header();
   char input;
   char cmd[40];
-  // printw("Type \"play\" or \"pause\"\n");
   display_pause();
   move(MIDDLE, 0);
   int position = MIDDLE;
@@ -298,9 +330,13 @@ void listen_for_key_events() {
         assert(send(sockfd, cmd, sizeof(cmd), 0)!=-1);
         sleep(2);
       } else if (position == MIDDLE) {
-        display_position_menu();
+        display_position_menu(false);
         break;
       } else if (position == DOWN) {
+        strncpy(cmd, "stop", sizeof(cmd));
+        assert(send(sockfd, cmd, sizeof(cmd), 0)!=-1);
+        close(sockfd);
+        break;
       }
       
     } else if(input == 'z') {   
@@ -332,7 +368,10 @@ void listen_for_key_events() {
   }
 }
 
+
+
 void get_connection () {
+  echo();
    sockfd = socket(AF_INET, SOCK_STREAM, 0);
   struct sockaddr_in addr;
   addr.sin_family = AF_INET;
@@ -342,51 +381,22 @@ void get_connection () {
   // la connexion déclenche la création du thread distant
   assert(connect(sockfd, (struct sockaddr *)&addr, sizeof(addr))>=0);
 
-
   assert(send(sockfd, instrument, sizeof(instrument), 0)!=-1);
+  refresh();
   sleep(2);
+  char buf = current_direction + '0';
+  char * buffer[1];
+  buffer[0] = buf;
+  assert(send(sockfd, &buffer, sizeof(buffer), 0)!=-1);
 	// close(sockfd);
 }
-
-
-int print_menu () {
-  clear();
-  display_header();
-  char input;;
-  char c;
-  int position = MIDDLE;
-  printw("\n\n> Quit Game without saving?\n  Save Game ▶!\n");
-  for ( ;; )
-  {
-    input = getch();
-    if(input == 'z')
-    {   
-        move(MIDDLE,0);
-        printw(" ");
-        move(DOWN,0);
-        printw(">");
-        position = MIDDLE;
-    }
-    if(input == 's')
-    {   
-        move(MIDDLE,0);
-        printw(" ");
-        move(DOWN,0);
-        printw(">");
-        position = MIDDLE;
-    }
-  }
-  endwin();
-  return 0;
-}
-
-
-
 
 int main(int argc, char* argv[]) {
   display_welcome_screen();
   get_instrument();
   get_connection();
+  // test_connection();
+  // while(1);
   listen_for_key_events();
   // print_menu();
   return 0;

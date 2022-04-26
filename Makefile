@@ -22,4 +22,4 @@ orchestra: src/orchestra.c
 # clean:
 # 	rm $(TARGETS) 
 
-gcc src/orchestra.c src/instruments/instruments.c -o bin/orchestra -pthread -lopenal -lalut && gcc src/musician/musician.c src/tools/colors.c src/instruments/instruments.c -o bin/musician -pthread -lopenal -lalut
+gcc src/orchestra.c src/instruments/instruments.c -o bin/orchestra -pthread -lopenal -lalut && gcc src/musician/musician.c src/tools/colors.c src/instruments/instruments.c -o bin/musician -pthread -lopenal -lalut -lncurses
