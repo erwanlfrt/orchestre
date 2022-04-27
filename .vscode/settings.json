@@ -6,6 +6,12 @@
     "inet.h": "c",
     "alut.h": "c",
     "string.h": "c",
-    "cstdlib": "c"
+    "cstdlib": "c",
+    "musician.h": "c",
+    "direction.h": "c",
+    "orchestra.h": "c",
+    "instruments.h": "c",
+    "stdbool.h": "c",
+    "tools.h": "c"
   }
 }

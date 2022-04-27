@@ -1,5 +1,8 @@
-#include "./instruments.h"
 #include <string.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include "./instruments.h"
+
 
 char * music_instruments[NUMBER_OF_INSTRUMENTS] = { 
   "violin", 
@@ -43,4 +46,23 @@ char * assign_partition (char * type) {
     return pianos[0];
   }
   return "";
+}
+
+/**
+ * @brief check if instrument is a valid instrument
+ * 
+ * @param instrument instrument to check 
+ * @return true if instrument is a valid one, false if not
+ */
+bool is_valid_instrument (char * instrument) {
+  int i;
+  if (strcmp("", instrument) && strcmp("help", instrument) && strcmp("h", instrument) ) {
+    for (i = 0; i < NUMBER_OF_INSTRUMENTS; i++) {
+      if (strcmp(music_instruments[i], instrument) == 0) {
+        return true;
+      }
+    }
+    printf("%s is not a valid instrument.\n", instrument);
+  }
+  return false;
 }

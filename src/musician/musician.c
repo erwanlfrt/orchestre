@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <assert.h>
-#include "../tools/colors.h"
+#include "../color/colors.h"
 #include "../instruments/instruments.h"
 #include "../direction/direction.h"
 #define NUMBER_OF_CMD 2
@@ -83,20 +83,6 @@ void display_help () {
   }
 }
 
-bool is_valid_instrument (char * instrument) {
-  int i;
-  if (strcmp("", instrument) && strcmp("help", instrument) && strcmp("h", instrument) ) {
-    for (i = 0; i < NUMBER_OF_INSTRUMENTS; i++) {
-      if (strcmp(music_instruments[i], instrument) == 0) {
-        return true;
-      }
-    }
-    red();
-    printf("%s is not a valid instrument.\n", instrument);
-    white();
-  }
-  return false;
-}
 
 bool is_valid_cmd (char* cmd) {
   int i;

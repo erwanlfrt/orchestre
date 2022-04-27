@@ -7,3 +7,8 @@
 #define W 6
 #define NW 7
 #define CENTER -1
+
+#define NUMBER_OF_DIRECTIONS 9
+char* available_directions[NUMBER_OF_DIRECTIONS];
+
+int get_direction (char* direction);

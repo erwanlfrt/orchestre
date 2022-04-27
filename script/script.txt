@@ -1,0 +1,16 @@
+CREATE
+1 violin CENTER
+2 piano W
+
+RUN
+play 1 
+wait 5 
+play 2
+direction 1 W
+wait 3
+stop 1
+wait 3
+direction 2 E
+wait 10
+
+EXIT

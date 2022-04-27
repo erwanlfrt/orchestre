@@ -1,5 +1,8 @@
 #include <AL/al.h>
 
+#ifndef MUSICIAN_H_
+#define MUSICIAN_H_
+
 typedef struct musician {
   char * type;
   int sockfd;
@@ -9,4 +12,4 @@ typedef struct musician {
   long int nthr;
 } Musician;
 
-char * assign_partition (char * type);
+#endif
