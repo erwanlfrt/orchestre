@@ -1,6 +1,6 @@
 CREATE
-1 violin CENTER
-2 piano W
+1 violin E
+2 piano E
 
 RUN
 play 1 
@@ -9,8 +9,39 @@ play 2
 direction 1 W
 wait 3
 stop 1
-wait 3
+wait 2
+direction 2 NE
+wait 2
+direction 2 N
+wait 2
+direction 2 NW
+wait 2
+direction 2 W
+wait 2
+direction 2 SW
+wait 2
+direction 2 S
+wait 2
+direction 2 SE
+wait 2
+direction 2 CENTER
+wait 22
 direction 2 E
-wait 10
-
+wait 1
+direction 2 NE
+wait 1
+direction 2 N
+wait 1
+direction 2 NW
+wait 1
+direction 2 W
+wait 1
+direction 2 SW
+wait 1
+direction 2 S
+wait 1
+direction 2 SE
+wait 1
+direction 2 CENTER
+wait 8
 EXIT

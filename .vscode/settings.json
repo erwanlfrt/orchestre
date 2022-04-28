@@ -12,6 +12,8 @@
     "orchestra.h": "c",
     "instruments.h": "c",
     "stdbool.h": "c",
-    "tools.h": "c"
+    "tools.h": "c",
+    "colors.h": "c",
+    "display.h": "c"
   }
 }

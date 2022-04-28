@@ -23,8 +23,16 @@
 #define RUN_STEP 2
 #define EXIT_STEP 3
 
-
+long int nthr = 0;
+int current_nb_instru = 0;
 ALuint sources[N_INSTRU];
+
+
+void display_orchestra_header () {
+  printf("=======================================================\n");
+  printf("=                      ORCHESTRA                      =\n");
+  printf("=======================================================\n");
+}
 
 
 /**
@@ -70,8 +78,9 @@ void create_musician (char * type, int sockfd, long int nthread) {
   if (current_nb_instru < N_INSTRU) {
     musicians[current_nb_instru].type = type;
     musicians[current_nb_instru].sockfd = sockfd;
-    musicians[current_nb_instru].partition = assign_partition(type);
+    musicians[current_nb_instru].partition =  assign_partition(type);
     musicians[current_nb_instru].nthr = nthread;
+    printf("New %s playing partition %s\n", musicians[current_nb_instru].type, musicians[current_nb_instru].partition);
     current_nb_instru++;
   }
 }
@@ -85,11 +94,11 @@ void create_musician (char * type, int sockfd, long int nthread) {
 void * thread_musician (void * args) {
   int sock = ((int*)args)[0];
   long int nthread = ((long int*)args)[1];
-  printf("New connection !!! sockfd = %i\n",sock);
 
   char buffer[8192];
   assert(recv (sock, buffer, sizeof buffer, 0) != -1);
   create_musician(buffer, sock, nthread);
+
   load(sock);
 
   int count = 0;
@@ -169,8 +178,15 @@ bool is_valid_cmd (char* line) {
   if (strcmp(cmd, "play") && strcmp(cmd, "stop") && strcmp(cmd, "wait") && strcmp(cmd, "direction")) {
     return false;
   } else if (!strcmp(cmd, "play") || !strcmp(cmd, "stop") || !strcmp(cmd, "wait")) {
-    char* time_string = strsep(&line, " ");
-    if (!is_int(time_string)) return false;
+    char* time_or_id_string = strsep(&line, " ");
+    if (!is_int(time_or_id_string)) return false;
+    if (!strcmp(cmd, "stop") || !strcmp(cmd, "play")) {
+      int id = atoi(time_or_id_string);
+      if(get_musician(id) == NULL) {
+        printf("Unknown musician with id = %i\n", id);
+        return false;
+      }
+    }
     return true;
   } else if (!strcmp(cmd, "direction")) {
     char* string_id = strsep(&line, " ");
@@ -201,13 +217,13 @@ void exit_orchestra () {
  * 
  */
 void thread_orchestra () {
-  printf("Orchestra\n");
   uint16_t port = 1234;
   struct sockaddr_in addr;
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
   addr.sin_addr.s_addr = INADDR_ANY;
   int addrlen = sizeof(addr); 
+  printf("Waiting for musicians\n");
   listen_for_connections();
 }
 
@@ -218,9 +234,9 @@ void thread_orchestra () {
  * @param argv arguments
  * @return int EXIT_SUCCESS
  */
-
 int main (int argc, char **argv) {
   init_openAL();
+  display_orchestra_header();
   if (argc >= 2) {
     read_file(argv[1]); // if file path is given then read a script.
   } else {

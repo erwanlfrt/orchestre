@@ -33,6 +33,7 @@ bool check_line (char* line, int step) {
     if (get_direction(direction) == -2) return false;
     create_musician(instrument, id, 0);
     load(id);
+    set_position(id, get_direction(direction));
     return true;
   } else if (step == 2) {
     if (!strcmp(line, "RUN")) return true;
@@ -178,6 +179,7 @@ void read_file (char* file) {
   if (create_step >=0 && run_step >=0 && exit_step >=0) {
     char *lines[n_lines];
     if(check_file(lines, file, n_lines, create_step, run_step, exit_step)) {
+      printf("Start playing script %s\n", file);
       play_file(lines, run_step, exit_step);
     } else {
       printf("file error");

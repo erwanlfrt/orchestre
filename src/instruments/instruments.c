@@ -3,26 +3,29 @@
 #include <stdio.h>
 #include "./instruments.h"
 
+extern int sockfd;
+
+
 
 char * music_instruments[NUMBER_OF_INSTRUMENTS] = { 
   "violin", 
-  "viola", 
-  "cello",
-  "double bass",
-  "flute",
-  "oboe",
-  "clarinet",
-  "bassoon",
-  "horn",
-  "trumpet",
-  "trombone",
-  "tuba",
-  "timpani",
-  "snare drum",
-  "bass drum",
-  "cymbals",
-  "triangle",
-  "tambourine",
+  // "viola", 
+  // "cello",
+  // "double bass",
+  // "flute",
+  // "oboe",
+  // "clarinet",
+  // "bassoon",
+  // "horn",
+  // "trumpet",
+  // "trombone",
+  // "tuba",
+  // "timpani",
+  // "snare drum",
+  // "bass drum",
+  // "cymbals",
+  // "triangle",
+  // "tambourine",
   "piano"
 };
 
@@ -42,7 +45,7 @@ char * assign_partition (char * type) {
   if (!strcmp(type, music_instruments[0])) {
     return violins[3];
   }
-  if (!strcmp(type, music_instruments[18])) {
+  if (!strcmp(type, music_instruments[1])) {
     return pianos[0];
   }
   return "";

@@ -2,6 +2,7 @@
 #include <AL/alc.h>
 #include <AL/alut.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <string.h>
 #include "../musician/musician.h"
 #include "./audio.h"
@@ -15,7 +16,39 @@ ALuint source;
 ALuint buffer;
 ALCdevice *device;
 ALCcontext *context;
+extern int current_nb_instru;
+extern long int nthr;
 
+/**
+ * @brief Custom load wav file function to get rid of the deprecated function alutLoadWavFile().
+ * 
+ */
+void load_wav_file(ALbyte *fileName, ALenum *format, void **data,
+                               ALsizei *size, ALsizei *frequency
+#if !defined(__APPLE__)
+                               , ALboolean *loop
+#endif
+  )
+{
+  ALfloat freq;
+  *data = alutLoadMemoryFromFile (fileName, format, size, &freq);
+  if (*data == NULL)
+    {
+      return;
+    }
+
+  if (frequency)
+    {
+      *frequency = (ALsizei) freq;
+    }
+
+#if !defined(__APPLE__)
+  if (loop)
+    {
+      *loop = AL_FALSE;
+    }
+#endif
+}
 
 /**
  * @brief Load buffer and source for a musician
@@ -31,13 +64,17 @@ void load (int sockfd) {
   strcpy(path, SOUND_PATH);
   strcat(path, get_partition(sockfd));
   alGenBuffers((ALuint)1, &(buffer));
-  alutLoadWAVFile(path, &format, &data, &size, &freq, &loop);
+  load_wav_file(path, &format, &data, &size, &freq, &loop);
   alBufferData(buffer, format, data, size, freq);
   alGenSources(1, &(source));
   alSourcei(source, AL_BUFFER, buffer);
   musician->source = source;
   musician->buffer = buffer;
 }
+
+
+
+
 
 /**
  * @brief Play the partition of a musician
