@@ -3,7 +3,7 @@
 #ifndef AUDIO_H_
 #define AUDIO_H_
 
-#define N_INSTRU 2
+#define N_INSTRU 3
 
 
 void load (int sockfd);
