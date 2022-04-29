@@ -1,3 +1,6 @@
+#ifndef DIRECTION_H_
+#define DIRECTION_H_
+
 #define N 0
 #define NE 1
 #define E 2
@@ -12,3 +15,5 @@
 char* available_directions[NUMBER_OF_DIRECTIONS];
 
 int get_direction (char* direction);
+
+#endif

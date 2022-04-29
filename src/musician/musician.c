@@ -23,29 +23,12 @@
 #define DOWN 15
 
 int current_direction = CENTER;
-
+bool is_playing = false;
 char instrument[40];
 char * available_cmd[2] = {
   "play",
   "pause"
 };
-bool is_playing = false;
-
-
-/**
- * @brief 
- * 
- * @param cmd 
- * @return true 
- * @return false 
- */
-bool is_valid_cmd (char* cmd) {
-  int i;
-  if (!strcmp("", cmd)) {
-    return true;
-  }
-  return false;
-}
 
 /**
  * @brief Ask which instrument the user want.
@@ -56,12 +39,12 @@ void get_instrument () {
   while (!is_valid_instrument(instrument)) {
     printw("\nWhat is your instrument ? ");
     refresh();
-    scanw("%s", instrument);
+    scanw("%s", instrument); // ask the instrument while the user doesn't give a valid one.
     if(!strcmp("help", instrument) || !strcmp("h", instrument)) {
-      display_help();
+      display_help(); // display help if "help" or "h" is entered
     }
   }
-  display_position_menu(true);
+  display_position_menu(true); // display position menu to ask for init position
 }
 
 
@@ -75,19 +58,21 @@ void listen_for_key_events() {
   char input;
   char cmd[40];
   if (is_playing) {
-    display_play();
+    display_play(); // display play if musician is playing
   } else {
-    display_pause();
+    display_pause(); // display pause if musician is not playing
   }
-  move(MIDDLE, 0);
+  move(MIDDLE, 0); // move on terminal
   int position = MIDDLE;
-  printw("> Set sound position\n  Exit\n");
+  printw("> Set sound position\n  Exit\n"); // print menu options
   refresh();
   while(true) {
-    input = getch();
+    input = getch(); // get input value
     refresh();
     if (input == '\n') {
+      // on enter, get the position and do the appropriate action
       if (position == UP) {
+        // play/pause
         is_playing = !is_playing;
         if (is_playing) {
           strncpy(cmd, "play", sizeof(cmd));
@@ -99,9 +84,11 @@ void listen_for_key_events() {
         assert(send(sockfd, cmd, sizeof(cmd), 0)!=-1);
         sleep(2);
       } else if (position == MIDDLE) {
+        // display compass
         display_position_menu(false);
         break;
       } else if (position == DOWN) {
+        // exit the orchestra
         strncpy(cmd, "stop", sizeof(cmd));
         assert(send(sockfd, cmd, sizeof(cmd), 0)!=-1);
         close(sockfd);
@@ -109,6 +96,7 @@ void listen_for_key_events() {
       }
       
     } else if(input == 'z') {   
+        // select the lower option in menu
         if (position == DOWN) {
           move(DOWN,0);
           printw(" ");
@@ -121,7 +109,8 @@ void listen_for_key_events() {
           move(UP, 0);
           position = UP;
         }
-    } else if(input == 's') {   
+    } else if(input == 's') {  
+      // select the upper option in menu 
       if (position == UP) {
         move(MIDDLE,0);
         printw(">");
@@ -144,19 +133,22 @@ void listen_for_key_events() {
  */
 bool get_connection () {
   echo();
-   sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  // socket configuration
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
   struct sockaddr_in addr;
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
   assert(inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr)>=0);
 
   if (connect(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+    // not connected
     red();
     printw("Orchestra doesn't want new musicians for now. Try again later :)\n");
     white();
     refresh();
     return false;
   } else {
+    //connected, send the instrument and the init position
     assert(send(sockfd, instrument, sizeof(instrument), 0)!=-1);
     refresh();
     sleep(2);
@@ -181,7 +173,7 @@ int main(int argc, char* argv[]) {
   display_welcome_screen();
   get_instrument();
   if(get_connection()) {
-    listen_for_key_events();
+    listen_for_key_events(); // display menu if connected
   }
   return 0;
 }

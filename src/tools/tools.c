@@ -24,6 +24,6 @@ bool is_int(char* string) {
 void crop_newline(char* string) {
   size_t ln = strlen(string) - 1;
   if (*string && string[ln] == '\n') {
-    string[ln] = '\0';
+    string[ln] = '\0'; // replace the newline character by the termination character
   }
 }

@@ -14,7 +14,6 @@ int current_nb_instru;
 Musician * get_musician(int sockfd);
 char * get_partition (int sockfd);
 void create_musician (char * type, int sockfd, long int nthread);
-bool is_valid_cmd (char* line);
 void exit_orchestra ();
 void listen_for_connections();
 #endif

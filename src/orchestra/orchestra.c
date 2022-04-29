@@ -18,6 +18,7 @@
 #include "./orchestra.h"
 #include "../tools/tools.h"
 #include "../file_reader/file_reader.h"
+#include "../color/colors.h"
 #define MAX_LEN 50
 #define CREATE_STEP 1
 #define RUN_STEP 2
@@ -78,7 +79,7 @@ void create_musician (char * type, int sockfd, long int nthread) {
   if (current_nb_instru < N_INSTRU) {
     musicians[current_nb_instru].type = type;
     musicians[current_nb_instru].sockfd = sockfd;
-    musicians[current_nb_instru].partition =  assign_partition(type);
+    musicians[current_nb_instru].partition =  assign_partition(type); //assign a partition according to his type
     musicians[current_nb_instru].nthr = nthread;
     printf("New %s playing partition %s\n", musicians[current_nb_instru].type, musicians[current_nb_instru].partition);
     current_nb_instru++;
@@ -94,23 +95,26 @@ void create_musician (char * type, int sockfd, long int nthread) {
 void * thread_musician (void * args) {
   int sock = ((int*)args)[0];
   long int nthread = ((long int*)args)[1];
-
   char buffer[8192];
-  assert(recv (sock, buffer, sizeof buffer, 0) != -1);
-  create_musician(buffer, sock, nthread);
-
-  load(sock);
-
   int count = 0;
   int total = 0;
+  assert(recv (sock, buffer, sizeof buffer, 0) != -1); // receive instrument from musician
+  create_musician(buffer, sock, nthread); // create a musician with the given instrument
+  load(sock); // load the new musician partition
+  
   while ((count = recv(sock, &buffer[total], sizeof buffer - total, 0)) > 0) {
+    // listen for commands sent by the musician
     if (!strcmp(buffer, "play")) {
+      // play command
       play(sock);
     } else if (!strcmp(buffer, "pause")) {
+      // pause command
       pause_sound(sock);
     } else if (!strcmp(buffer, "stop")) {
+      // stop command
       stop(sock);
     } else {
+      // direction position
       int position = buffer[0] - '0';
       set_position(sock, position);
     }
@@ -122,8 +126,8 @@ void * thread_musician (void * args) {
  * 
  */
 void continue_playing_orchestra () {
-  while(nthr >= N_INSTRU);
-  listen_for_connections();  
+  while(nthr >= N_INSTRU); // while no new connection available loop
+  listen_for_connections();  // listen for new connection when there are new connections available
 }
 
 /**
@@ -131,6 +135,7 @@ void continue_playing_orchestra () {
  * 
  */
 void listen_for_connections () {
+  // init socket
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
   int opt = 1;
   uint16_t port = 1234;
@@ -144,13 +149,10 @@ void listen_for_connections () {
   assert(bind(sockfd, (struct sockaddr *)&addr, sizeof(addr))>=0);
   assert(listen(sockfd, 3)==0);
 	void* args[2];
-  long int prec_nthr = 0;
   while(nthr < N_INSTRU) {
-    if (nthr != prec_nthr) {
-      prec_nthr = nthr;
-    }
+    // while connections available, listen for new connections
     int new_socket;
-    new_socket = accept(sockfd, (struct sockaddr *)&addr, (socklen_t*)&addrlen);
+    new_socket = accept(sockfd, (struct sockaddr *)&addr, (socklen_t*)&addrlen); // accept new connections 
     if (new_socket >= 0) {
       args[0] = (void*)(long int)new_socket;
       args[1] = (void*)nthr;
@@ -158,48 +160,10 @@ void listen_for_connections () {
       nthr++;
     }
   }
-  shutdown(sockfd, 2);
+  shutdown(sockfd, 2); //shutdown current socket 
   close(sockfd);
-  continue_playing_orchestra (sockfd, addr, addrlen);
+  continue_playing_orchestra (sockfd, addr, addrlen); // continue playing orchestra while no new connection available
 }
-
-
-
-
-
-/**
- * @brief Check if line is a valid command line for RUN section
- * 
- * @param line line to check
- * @return true if line is a valid command line, false if not
- */
-bool is_valid_cmd (char* line) {
-  char * cmd = strsep(&line, " ");
-  if (strcmp(cmd, "play") && strcmp(cmd, "stop") && strcmp(cmd, "wait") && strcmp(cmd, "direction")) {
-    return false;
-  } else if (!strcmp(cmd, "play") || !strcmp(cmd, "stop") || !strcmp(cmd, "wait")) {
-    char* time_or_id_string = strsep(&line, " ");
-    if (!is_int(time_or_id_string)) return false;
-    if (!strcmp(cmd, "stop") || !strcmp(cmd, "play")) {
-      int id = atoi(time_or_id_string);
-      if(get_musician(id) == NULL) {
-        printf("Unknown musician with id = %i\n", id);
-        return false;
-      }
-    }
-    return true;
-  } else if (!strcmp(cmd, "direction")) {
-    char* string_id = strsep(&line, " ");
-    if (!is_int(string_id)) return false;
-    int id = atoi(string_id);
-    if(get_musician(id) == NULL) return false;
-    char * direction = strsep(&line, " ");
-    if (get_direction(direction) == -2) return false;
-    return true;
-  }
-  return false;
-}
-
 
 /**
  * @brief Exit orchestra
@@ -208,7 +172,7 @@ bool is_valid_cmd (char* line) {
 void exit_orchestra () {
   for (int i = 0; i < current_nb_instru; i++) {
     Musician musician = musicians[i];
-    stop(musician.sockfd);
+    stop(musician.sockfd); // stop all musicians
   }
 }
 
@@ -217,6 +181,7 @@ void exit_orchestra () {
  * 
  */
 void thread_orchestra () {
+  // init socket
   uint16_t port = 1234;
   struct sockaddr_in addr;
   addr.sin_family = AF_INET;
@@ -224,7 +189,7 @@ void thread_orchestra () {
   addr.sin_addr.s_addr = INADDR_ANY;
   int addrlen = sizeof(addr); 
   printf("Waiting for musicians\n");
-  listen_for_connections();
+  listen_for_connections(); // Wait incoming musicians
 }
 
 /**
@@ -235,7 +200,7 @@ void thread_orchestra () {
  * @return int EXIT_SUCCESS
  */
 int main (int argc, char **argv) {
-  init_openAL();
+  init_openAL(); // init audio environment
   display_orchestra_header();
   if (argc >= 2) {
     read_file(argv[1]); // if file path is given then read a script.

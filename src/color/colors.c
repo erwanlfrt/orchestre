@@ -10,14 +10,20 @@
 #define CYAN_PAIR 6
 #define WHITE_PAIR 7
 
-// const char * BLACK = "\033[0;30m";
-// const char * RED = "\033[0;31m";
-// const char * GREEN = "\033[0;32m";
-// const char * YELLOW = "\033[0;33m";
-// const char * BLUE = "\033[0;34m";
-// const char * PURPLE = "\033[0;35m";
-// const char * CYAN = "\033[0;36m";
-// const char * WHITE = "\033[0;37m";
+const char * BLACK = "\033[0;30m";
+const char * RED = "\033[0;31m";
+const char * GREEN = "\033[0;32m";
+const char * YELLOW = "\033[0;33m";
+const char * BLUE = "\033[0;34m";
+const char * PURPLE = "\033[0;35m";
+const char * CYAN = "\033[0;36m";
+const char * WHITE = "\033[0;37m";
+
+/* =======================================
+
+Put some colors into the terminal
+
+========================================== */
 
 
 void init() {
@@ -57,4 +63,30 @@ void cyan(){
 
 void white(){
   attron(COLOR_PAIR(WHITE_PAIR));
+}
+
+
+void printf_black() {
+  printf("%s", BLACK);
+}
+void printf_red(){
+  printf("%s", RED);
+}
+void printf_green(){
+  printf("%s", GREEN);
+}
+void printf_yellow(){
+  printf("%s", YELLOW);
+}
+void printf_blue(){
+  printf("%s", BLUE);
+}
+void printf_purple(){
+  printf("%s", PURPLE);
+}
+void printf_cyan(){
+  printf("%s", CYAN);
+}
+void printf_white(){
+  printf("%s", WHITE);
 }

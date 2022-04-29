@@ -9,9 +9,9 @@
 #include "../orchestra/orchestra.h"
 #include "../direction/direction.h"
 
+#define SOUND_PATH "./sounds/"
 
 char path[300];
-#define SOUND_PATH "./sounds/"
 ALuint source;
 ALuint buffer;
 ALCdevice *device;
@@ -23,31 +23,26 @@ extern long int nthr;
  * @brief Custom load wav file function to get rid of the deprecated function alutLoadWavFile().
  * 
  */
-void load_wav_file(ALbyte *fileName, ALenum *format, void **data,
-                               ALsizei *size, ALsizei *frequency
-#if !defined(__APPLE__)
-                               , ALboolean *loop
-#endif
-  )
-{
+void load_wav_file(ALbyte *fileName, ALenum *format, void **data, ALsizei *size, ALsizei *frequency
+    #if !defined(__APPLE__)
+      , ALboolean *loop
+    #endif
+  ) {
   ALfloat freq;
   *data = alutLoadMemoryFromFile (fileName, format, size, &freq);
-  if (*data == NULL)
-    {
-      return;
-    }
+  if (*data == NULL) {
+    return;
+  }
 
-  if (frequency)
-    {
-      *frequency = (ALsizei) freq;
-    }
+  if (frequency) {
+    *frequency = (ALsizei) freq;
+  }
 
-#if !defined(__APPLE__)
-  if (loop)
-    {
+  #if !defined(__APPLE__)
+    if (loop) {
       *loop = AL_FALSE;
     }
-#endif
+  #endif
 }
 
 /**
@@ -60,21 +55,17 @@ void load (int sockfd) {
   ALenum format;
   ALvoid *data;
   ALboolean loop = AL_FALSE;
-  Musician * musician = get_musician(sockfd);
-  strcpy(path, SOUND_PATH);
-  strcat(path, get_partition(sockfd));
-  alGenBuffers((ALuint)1, &(buffer));
-  load_wav_file(path, &format, &data, &size, &freq, &loop);
-  alBufferData(buffer, format, data, size, freq);
-  alGenSources(1, &(source));
-  alSourcei(source, AL_BUFFER, buffer);
-  musician->source = source;
-  musician->buffer = buffer;
+  Musician * musician = get_musician(sockfd); // get the musician from his sockd to get his partition.
+  strcpy(path, SOUND_PATH); 
+  strcat(path, get_partition(sockfd)); // path = SOUND_PATH + partition
+  alGenBuffers((ALuint)1, &(buffer)); // generate buffer
+  load_wav_file(path, &format, &data, &size, &freq, &loop); // load wav file in memory
+  alBufferData(buffer, format, data, size, freq); // load data in buffer
+  alGenSources(1, &(source)); // generate source
+  alSourcei(source, AL_BUFFER, buffer); // link source and buffer
+  musician->source = source; // update musician source
+  musician->buffer = buffer; // update musician buffer
 }
-
-
-
-
 
 /**
  * @brief Play the partition of a musician
@@ -104,14 +95,14 @@ void pause_sound (int sockfd) {
 void stop (int sockfd) {
   Musician * musician = get_musician(sockfd);
   alSourceStop(musician->source);
-  delete_source_buffer(musician->source, musician->buffer);
+  delete_source_buffer(musician->source, musician->buffer); // delete source and buffer of the musician
   
   // Delete the musician from the musicians array and delete is thread
   Musician tmp[N_INSTRU];
   int index = 0;
   for (int i = 0; i < current_nb_instru; i++) {
     if (musicians[i].sockfd != sockfd) {
-      tmp[index] = musicians[i];
+      tmp[index] = musicians[i]; // copy exclusively the other musicians
       index++;
     }
   }
@@ -120,14 +111,14 @@ void stop (int sockfd) {
   int index_j = 0;
   for (int j = 0; j < nthr ; j++) {
     if (j != musician->nthr) {
-      tmp_thr[index_j] = j;
+      tmp_thr[index_j] = j; // copy exclusively the other threads
       index_j++;
     }
   }
   current_nb_instru--;
   nthr--;
-  *musicians = *tmp;
-  *thr = *tmp_thr;
+  *musicians = *tmp; // update musicians array
+  *thr = *tmp_thr; // update threads array
 }
 
 /**
@@ -138,36 +129,37 @@ void stop (int sockfd) {
  */
 void set_position(int sockfd, int position) {
     Musician * musician = get_musician(sockfd);
+    float step = 2.0;
     switch (position) {
         case N:
-            alSource3f(musician->source, AL_POSITION, 0.0, 2.0, 0.0);
+            alSource3f(musician->source, AL_POSITION, 0.0, step, 0.0);
             break;
         case S:
-            alSource3f(musician->source, AL_POSITION, 0.0, -2.0, 0.0);
+            alSource3f(musician->source, AL_POSITION, 0.0, -step, 0.0);
             break;
         case E:
-            alSource3f(musician->source, AL_POSITION, 2.0, 0.0, 0.0);
+            alSource3f(musician->source, AL_POSITION, step, 0.0, 0.0);
             break;
         case W:
-            alSource3f(musician->source, AL_POSITION, -2.0, 0.0, 0.0);
+            alSource3f(musician->source, AL_POSITION, -step, 0.0, 0.0);
             break;
         case NE:
-            alSource3f(musician->source, AL_POSITION, 2.0, 2.0, 0.0);
+            alSource3f(musician->source, AL_POSITION, step, step, 0.0);
             break;
         case NW:
-            alSource3f(musician->source, AL_POSITION, -2.0, 2.0, 0.0);
+            alSource3f(musician->source, AL_POSITION, -step, step, 0.0);
             break;
         case SE:
-            alSource3f(musician->source, AL_POSITION, 2.0, -2.0, 0.0);
+            alSource3f(musician->source, AL_POSITION, step, -step, 0.0);
             break;
         case SW:
-            alSource3f(musician->source, AL_POSITION, -2.0, -2.0, 0.0);
+            alSource3f(musician->source, AL_POSITION, -step, -step, 0.0);
             break;
         case CENTER:
             alSource3f(source, AL_POSITION, 0.0, 0.0, 0.0);
             break;
         default:
-            alSource3f(source, AL_POSITION, 0.0, 0.0, 0.0);
+            alSource3f(source, AL_POSITION, 0.0, 0.0, 0.0); // default center
             break;
     }
 }
@@ -177,12 +169,12 @@ void set_position(int sockfd, int position) {
  * 
  */
 void init_openAL () {
-  device = alcOpenDevice (NULL);
-  context = alcCreateContext (device, NULL);
-  alcMakeContextCurrent (context);
-  alutInitWithoutContext(0, NULL);
-  alListener3f(AL_POSITION, 0, 0, 0);
-  alListener3f(AL_VELOCITY, 0, 0, 0);
+  device = alcOpenDevice (NULL); // open audio device
+  context = alcCreateContext (device, NULL); // create context
+  alcMakeContextCurrent (context); // created context becomes the current context
+  alutInitWithoutContext(0, NULL); // init alut without context because context has been created by openAL
+  alListener3f(AL_POSITION, 0, 0, 0); // set listener position to center
+  alListener3f(AL_VELOCITY, 0, 0, 0); //set listener velocity to zero.
   alutSleep (1);
 }
 

@@ -68,6 +68,7 @@ void display_header () {
 void display_help () {
   int i;
   printw("available instruments : \n");
+  // print all the instruments
   for (i = 0; i < NUMBER_OF_INSTRUMENTS; i++) {
     printw("%s\n", music_instruments[i]);
   }
@@ -96,6 +97,7 @@ void display_welcome_screen () {
  */
 void draw_compass (bool is_init) {
   move(6,0);
+  //print step by step the compass, print in green color the current_direction
   if (current_direction == N) {
     green();
   }
@@ -203,7 +205,7 @@ void draw_compass (bool is_init) {
   char * buffer = malloc(sizeof(buf));
   buffer[0] = buf;
   if (!is_init) {
-    assert(send(sockfd, buffer, sizeof(buffer), 0)!=-1);
+    assert(send(sockfd, buffer, sizeof(buffer), 0)!=-1); // send the current_direction if we are already connected to the orchestra
   }
 }
 
@@ -213,6 +215,7 @@ void draw_compass (bool is_init) {
  * @param is_init true if the position menu is for initialization, false if not
  */
 void display_position_menu (bool is_init) {
+  noecho();
   display_header();
   move(5, 0);
   printw("========= POSITION =========\n");
@@ -221,25 +224,25 @@ void display_position_menu (bool is_init) {
   while (true) {
     input = getch();
     if ((int)input == 27 && !is_init) {
-      listen_for_key_events();
+      listen_for_key_events(); // if 'esc' key pressed, then go back to previous menu
       break;
     } else if ((int)input == 10 && is_init) {
-      break;
+      break; // if enter is pressed during init, then stop waiting for getting the init direction
     }
     else if (input == 'd') {
-      current_direction++;
+      current_direction++; // select the next direction
       if (current_direction > 7) {
-        current_direction = 0;
+        current_direction = 0; // new turn
       }
       draw_compass(is_init);
     } else if (input == 'q') {
-      current_direction--;
+      current_direction--; // select the previous direction
       if (current_direction < 0) {
-        current_direction = 7;
+        current_direction = 7; // new turn
       }
       draw_compass(is_init);
     } else if (input == 'o') {
-      current_direction = -1;
+      current_direction = -1; // set the direction to 'center'
       draw_compass(is_init);
     }
   }

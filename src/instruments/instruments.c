@@ -4,9 +4,6 @@
 #include "./instruments.h"
 
 extern int sockfd;
-
-
-
 char * music_instruments[NUMBER_OF_INSTRUMENTS] = { 
   "violin", 
   // "viola", 
@@ -40,8 +37,9 @@ char * pianos[1] = {
   "piano/piano_1.wav"
 };
 
-
 char * assign_partition (char * type) {
+  // static attribution of partition.
+  // idea : get a random partition or ask for a specific partition
   if (!strcmp(type, music_instruments[0])) {
     return violins[3];
   }
@@ -62,10 +60,10 @@ bool is_valid_instrument (char * instrument) {
   if (strcmp("", instrument) && strcmp("help", instrument) && strcmp("h", instrument) ) {
     for (i = 0; i < NUMBER_OF_INSTRUMENTS; i++) {
       if (strcmp(music_instruments[i], instrument) == 0) {
-        return true;
+        return true; // return true if the instrument is found in the list.
       }
     }
     printf("%s is not a valid instrument.\n", instrument);
   }
-  return false;
+  return false; // return false if the instrument is not found
 }

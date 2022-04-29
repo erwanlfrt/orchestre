@@ -13,10 +13,16 @@ char * available_directions[NUMBER_OF_DIRECTIONS] = {
   "SE", 
   "S", 
   "SW",
-   "W", 
-   "NW" 
+  "W", 
+  "NW" 
 };
 
+/**
+ * @brief Get the direction value from string
+ * 
+ * @param direction string direction
+ * @return direction value, -2 if not a valid string direction
+ */
 int get_direction(char* direction) {
   int i;
   if (!strcmp(direction, "CENTER")) {
